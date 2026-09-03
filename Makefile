@@ -43,10 +43,19 @@ QEMU_SMP     ?= 4
 ISO_FILE := $(ISO_DIR)/bootiso/install.iso
 
 # bootc-image-builder must run as a privileged container (it needs loop
-# devices + mounts), which rootless podman cannot provide. So `make iso`
+# devices + mounts), which rootless podman cannot provide. On Linux, `make iso`
 # elevates to rootful podman via sudo, and the local image is copied into
 # rootful storage first with `podman save | sudo podman load`.
-# On macOS, podman machine handles the rootful/privileged escalation.
+# On macOS, podman machine is rootful by default — no sudo, no storage copy.
+
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+  SUDO :=
+  LOAD_IMAGE :=
+else
+  SUDO := sudo
+  LOAD_IMAGE := podman save localhost/$(IMAGE_NAME):$(IMAGE_TAG) | sudo podman load
+endif
 
 .PHONY: build iso test clean help
 
@@ -57,10 +66,10 @@ build:
 ## Generate a bootable ISO from the OCI image
 iso:
 	@mkdir -p $(ISO_DIR)
-	# Copy the rootless image into rootful storage so the privileged
-	# bib container can read it with --local.
-	podman save localhost/$(IMAGE_NAME):$(IMAGE_TAG) | sudo podman load
-	sudo podman run --rm --privileged --network host \
+	# On Linux: copy the rootless image into rootful storage so the privileged
+	# bib container can read it with --local. Skipped on macOS (rootful VM).
+	$(LOAD_IMAGE)
+	$(SUDO) podman run --rm --privileged --network host \
 		-v $(abspath $(ISO_DIR)):/output \
 		-v /var/lib/containers/storage:/var/lib/containers/storage \
 		quay.io/centos-bootc/bootc-image-builder:latest \

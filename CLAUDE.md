@@ -61,14 +61,23 @@ dob1.5-linux/
 - **KDE is layered** via `dnf -y install @kde-desktop` in the Containerfile — rpm-ostree doesn't support comps groups
 - **SDDM:** `rm -f /etc/systemd/system/display-manager.service` before `systemctl enable sddm` (kde-desktop wires it to plasmalogin)
 - **ISO build requires rootful privileged podman:**
-  ```
-  podman save localhost/dob:latest | sudo podman load
-  sudo podman run --rm --privileged --network host \
-      -v /var/lib/containers/storage:/var/lib/containers/storage \
-      quay.io/centos-bootc/bootc-image-builder:latest \
-      --local --rootfs ext4 --type iso \
-      localhost/dob:latest
-  ```
+  - **macOS (Podman Machine):** already rootful — run bib directly, no sudo, no storage copy:
+    ```
+    podman run --rm --privileged --network host \
+        -v /var/lib/containers/storage:/var/lib/containers/storage \
+        quay.io/centos-bootc/bootc-image-builder:latest \
+        --local --rootfs ext4 --type iso \
+        localhost/dob:latest
+    ```
+  - **Linux (WSL2):** elevates via sudo — copy image into rootful storage first:
+    ```
+    podman save localhost/dob:latest | sudo podman load
+    sudo podman run --rm --privileged --network host \
+        -v /var/lib/containers/storage:/var/lib/containers/storage \
+        quay.io/centos-bootc/bootc-image-builder:latest \
+        --local --rootfs ext4 --type iso \
+        localhost/dob:latest
+    ```
   - `--privileged`: bib needs loop devices
   - `--network host`: rootful container DNS resolves mirrors to IPv6 only (WSL2 issue), host networking fixes this
   - `--rootfs ext4`: bib requires an explicit root filesystem type
@@ -85,7 +94,9 @@ podman build -t dob:latest .
 # Build ARM64 image on x86_64 host
 podman build --arch arm64 -t dob:latest .
 
-# Generate ISO (requires sudo for rootful privileged bib)
+# Generate ISO
+# - macOS (Podman Machine): rootful by default, runs directly
+# - Linux: elevates to rootful via sudo automatically
 ./scripts/build-iso.sh        # or: make iso
 
 # Boot test in QEMU (auto-detects arch)

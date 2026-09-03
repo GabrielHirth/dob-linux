@@ -49,12 +49,22 @@ fi
 mkdir -p "${ISO_DIR}"
 
 # bib needs loop devices + mounts, so it must run as a privileged container.
-# Copy the rootless image into rootful storage first so bib can read it.
-echo "==> Copying image into rootful storage..."
-podman save "${LOCAL_REF}" | sudo podman load
+#
+# macOS (Podman Machine): the VM is rootful by default — use podman directly.
+# Linux rootful: use sudo to access rootful storage.
+if command -v podman machine &>/dev/null 2>&1; then
+    # macOS — Podman Machine handles rootful storage internally
+    echo "==> Detected macOS/Podman Machine — running without sudo..."
+    SUDO=""
+else
+    # Linux — need sudo for rootful podman storage
+    echo "==> Detected Linux — copying image into rootful storage..."
+    podman save "${LOCAL_REF}" | sudo podman load
+    SUDO="sudo"
+fi
 
 echo "==> Running bootc-image-builder (${ARCH})..."
-sudo podman run --rm --privileged --network host \
+${SUDO} podman run --rm --privileged --network host \
     -v "${ISO_DIR}":/output \
     -v /var/lib/containers/storage:/var/lib/containers/storage \
     "${BIB_IMAGE}" \
