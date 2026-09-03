@@ -25,6 +25,7 @@ kvantum
 
 # --- Plymouth (Phase 2: boot splash) ---
 plymouth
+plymouth-plugin-script
 
 # --- Development and build utilities ---
 git
