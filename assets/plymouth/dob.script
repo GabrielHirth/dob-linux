@@ -1,12 +1,24 @@
 # ============================================
 # DOB — Plymouth boot splash script
 # ============================================
-# Minimal script: DOB logo, title text, pulsing progress
+# DOB logo, title text, and a pulsing red progress
+# indicator (12 animation frames).
 
 @define DOB_RED       0xCC, 0x33, 0x44
 @define DOB_WHITE     0xF0, 0xF0, 0xF0
 @define DOB_FAINT     0x98, 0x88, 0xB0
 @define DOB_BG        0x1A, 0x10, 0x30
+
+progress_timer = 0;
+
+fun refresh() {
+    progress_image = "progress-" + sprintf("%02d", progress_timer) + ".png";
+    progress.sprite_image = progress_image;
+    progress_timer = progress_timer + 1;
+    if (progress_timer > 11) {
+        progress_timer = 0;
+    }
+}
 
 normal:
     [root] {
@@ -38,9 +50,13 @@ normal:
     }
 
     [progress] {
-        image = "progress.png"
+        image = "progress-01.png"
         x = (window-x - 64) / 2
         y = ((window-y + 256) / 2) + 24
         width = 64
         height = 64
     }
+
+fun on_animate() {
+    refresh();
+}
