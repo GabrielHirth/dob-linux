@@ -1,0 +1,26 @@
+# ============================================
+# DOB — Package list (layered onto the base)
+# ============================================
+# Add packages one per line. Lines starting
+# with '#' and blank lines are ignored.
+#
+# This list grows across phases:
+#   Phase 2: Plymouth themes, GRUB customization
+#   Phase 3: Kvantum themes, icon packs, fonts
+#   Phase 4: Easter egg tooling
+#   Phase 5: Dream Mode service dependencies
+
+# --- Theming foundation (used in Phase 2-3) ---
+kvantum
+kvantum-theme-KDE
+
+# --- Development and build utilities ---
+git
+curl
+wget
+nano
+vim-enhanced
+
+# --- System utilities ---
+htop
+tree
