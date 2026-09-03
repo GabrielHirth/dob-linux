@@ -202,7 +202,7 @@ dob1.5-linux/
 | Phase | What it adds                                  |
 |-------|-----------------------------------------------|
 | **1** | Base image & build pipeline ✅                |
-| **2** | Branding: GRUB, Plymouth boot splash, wallpaper 🔧 |
+| **2** | Branding: GRUB, Plymouth boot splash, wallpaper ✅ |
 | **3** | Aero theming, red-tinted icons                |
 | **4** | Easter eggs: terminal MOTDs, subtle surprises |
 | **5** | Dream Mode: Konami code + gradual escalation  |
