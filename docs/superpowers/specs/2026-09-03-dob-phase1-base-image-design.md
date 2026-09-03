@@ -27,9 +27,14 @@ Containerfile + packages.txt + configs/
    Running DOB desktop
 ```
 
-- **Base image:** `quay.io/kinoite/fedora-kinoite:44` — Fedora Atomic with KDE Plasma pre-installed.
+- **Base image:** `quay.io/fedora/fedora-bootc:44` — Fedora 44 bootc (minimal). The KDE Plasma desktop is layered via the `@kde-desktop` group, with SDDM enabled and `graphical.target` set as default.
 - **Package layering:** `rpm-ostree install` inside the Containerfile.
 - **Config injection:** `COPY configs/etc/ /etc/` bakes system configuration into the image.
+
+> **Note on base image selection:** The prebuilt KDE desktop image
+> (`quay.io/fedora-atomic/desktops/kinoite:44`) is not publicly pullable
+> in this environment (401/unauthorized). The public `fedora-bootc:44`
+> minimal base is used instead, with the KDE Plasma stack layered on.
 
 ## Components
 

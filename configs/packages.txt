@@ -4,15 +4,24 @@
 # Add packages one per line. Lines starting
 # with '#' and blank lines are ignored.
 #
+# NOTE: the KDE Plasma desktop itself is installed
+# via the @kde-desktop group in the Containerfile.
+# This list holds everything else DOB layers on top.
+#
 # This list grows across phases:
 #   Phase 2: Plymouth themes, GRUB customization
 #   Phase 3: Kvantum themes, icon packs, fonts
 #   Phase 4: Easter egg tooling
 #   Phase 5: Dream Mode service dependencies
 
+# --- Web browser (not pulled in by kde-desktop) ---
+firefox
+
+# --- Display manager (NOT pulled in by the kde-desktop group) ---
+sddm
+
 # --- Theming foundation (used in Phase 2-3) ---
 kvantum
-kvantum-theme-KDE
 
 # --- Development and build utilities ---
 git

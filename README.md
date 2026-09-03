@@ -28,7 +28,8 @@ Containerfile + packages.txt + configs/
    Running DOB desktop
 ```
 
-- **Base:** Fedora 44 Atomic (KDE/Kinoite) — `quay.io/kinoite/fedora-kinoite:44`
+- **Base:** Fedora 44 bootc (minimal) — `quay.io/fedora/fedora-bootc:44`
+- **Desktop:** KDE Plasma layered via the `@kde-desktop` group + SDDM
 - **Packages:** layered via `rpm-ostree install` in the Containerfile
 - **Config:** baked in from `configs/etc/`
 
@@ -38,12 +39,14 @@ Containerfile + packages.txt + configs/
 
 - **podman** (or docker) — for building the OCI image
   ```bash
-  sudo dnf install podman   # Fedora
+  sudo dnf install podman        # Fedora/RHEL
+  sudo apt-get install podman    # Ubuntu/Debian
   ```
 - **bootc-image-builder** — pulled automatically as a container image
 - **qemu-system-x86_64** — for testing the ISO locally
   ```bash
-  sudo dnf install qemu-system-x86
+  sudo dnf install qemu-system-x86        # Fedora/RHEL
+  sudo apt-get install qemu-system-x86    # Ubuntu/Debian
   ```
 - ~5GB free disk space for the build
 - KVM acceleration recommended for fast VM testing
