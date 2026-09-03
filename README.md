@@ -22,7 +22,7 @@ Containerfile + packages.txt + configs/
    OCI Image: dob:latest
         │
         ▼  (bootc-image-builder)
-   Bootable ISO: output/dob-latest.iso
+   Bootable ISO: output/bootiso/install.iso
         │
         ▼  (qemu or bare metal)
    Running DOB desktop
@@ -30,7 +30,7 @@ Containerfile + packages.txt + configs/
 
 - **Base:** Fedora 44 bootc (minimal) — `quay.io/fedora/fedora-bootc:44`
 - **Desktop:** KDE Plasma layered via the `@kde-desktop` group + SDDM
-- **Packages:** layered via `rpm-ostree install` in the Containerfile
+- **Packages:** layered via `dnf install` in the Containerfile
 - **Config:** baked in from `configs/etc/`
 
 ---
@@ -116,7 +116,12 @@ dob1.5-linux/
 
 ## Verification
 
-After booting the ISO, inside the VM:
+The Phase 1 pipeline is verified: `make build` produces the `dob:latest`
+OCI image (KDE Plasma 6, SDDM, Firefox, Kvantum — 1670 packages), `make iso`
+produces a bootable `output/bootiso/install.iso`, and QEMU boots it to the
+Fedora installer.
+
+After installing and booting the ISO, inside the VM:
 
 ```bash
 # Atomic/ostree status
