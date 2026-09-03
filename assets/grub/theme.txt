@@ -1,0 +1,87 @@
+# ============================================
+# DOB — GRUB 2 Boot Theme
+# ============================================
+# A dreamlike, dark mountainous boot screen with red accent.
+
+# -- Global ---------------------------------------------------------------
+terminal-color: "#f0f0f0"           # light text on dark bg
+terminal-bgcolor: "#1a1030"        # deep indigo (matches wallpaper)
+terminal-bordercolor: "#1a1030"
+terminal-margin: 30
+terminal-padding: 8
+terminal-border-width: 0
+
+desktop-image: "background.png"
+desktop-color: "#1a1030"
+desktop-image-scale-mode: "stretch"
+
+# -- Fonts ----------------------------------------------------------------
+title-font: "DejaVu Sans Bold 36"
+message-font: "DejaVu Sans 22"
+standard-font: "DejaVu Sans Bold 26"
+small-font: "DejaVu Sans 18"
+
+title-color: "#f0f0f0"
+message-color: "#d0c8e0"
+standard-color: "#e0d8f0"
+highlight-color: "#cc3344"         # DOB red accent (mischief)
+
+# -- Layout ----------------------------------------------------------------
+# +----------------------------------------------+
+# |                                              |
+# |     D O B                                    |
+# |     Born from a dream                        |
+# |                                              |
+# |     ┌─────────────────────────────┐          |
+# |     │ > Fedora Linux 44           │          |
+# |     │   Fedora Linux 44 (rescue)  │          |
+# |     └─────────────────────────────┘          |
+# |                                              |
+# |     Press enter to boot the selected OS      |
+# |                                              |
+# +----------------------------------------------+
+
++ boot_menu {
+    left = 40%
+    top = 25%
+    width = 52%
+    height = 44%
+    item_color = "#e0d8f0"
+    selected_item_color = "#cc3344"
+    selected_item_bgcolor = "#2a1e4a"
+    item_height = 38
+    item_padding = 8
+    item_spacing = 4
+    item_font = "DejaVu Sans Bold 24"
+    selected_item_font = "DejaVu Sans Bold 26"
+}
+
++ label {
+    left = 42%
+    top = 8%
+    width = 48%
+    text = "D O B"
+    font = "DejaVu Sans Bold 48"
+    color = "#f0f0f0"
+    align = "center"
+}
+
++ label {
+    left = 42%
+    top = 17%
+    width = 48%
+    text = "born from a dream"
+    font = "DejaVu Sans 22"
+    color = "#9888b0"
+    align = "center"
+}
+
++ label {
+    left = 42%
+    top = 74%
+    width = 48%
+    text = "↑↓ Select   ENTER Boot"
+    font = "DejaVu Sans 16"
+    color = "#6a5a80"
+    align = "center"
+}

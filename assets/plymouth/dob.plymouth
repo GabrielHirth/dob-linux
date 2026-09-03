@@ -1,0 +1,6 @@
+[Plymouth Theme]
+Name=DOB
+Description=A dreamlike boot splash born from a dream
+Author=DOB Project
+ModuleName=script
+ScriptFile=dob.script

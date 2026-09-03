@@ -1,0 +1,20 @@
+# ============================================
+# DOB — GRUB default configuration
+# ============================================
+# Baked into the image. Deploy-time grub.cfg reads this.
+
+GRUB_DEFAULT="saved"
+GRUB_TIMEOUT=5
+GRUB_TIMEOUT_STYLE=menu
+
+# DOB branding: mountain theme + red accent
+GRUB_THEME="/usr/share/grub/themes/dob/theme.txt"
+GRUB_FONT="/usr/share/grub/themes/dob/font.pf2"
+
+# DOB boot splash
+GRUB_CMDLINE_LINUX="rhgb quiet plymouth.theme=dob"
+GRUB_CMDLINE_LINUX_DEFAULT="rhgb quiet plymouth.theme=dob"
+
+# Colors (fallback if theme doesn't fully apply)
+GRUB_COLOR_NORMAL="light-gray/black"
+GRUB_COLOR_HIGHLIGHT="red/black"
