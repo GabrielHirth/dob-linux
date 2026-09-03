@@ -23,6 +23,9 @@ sddm
 # --- Theming foundation (used in Phase 2-3) ---
 kvantum
 
+# --- Plymouth (Phase 2: boot splash) ---
+plymouth
+
 # --- Development and build utilities ---
 git
 curl
