@@ -7,6 +7,11 @@ IMAGE_TAG  := latest
 ISO_DIR    := ./output
 ISO_FILE   := $(ISO_DIR)/$(IMAGE_NAME)-$(IMAGE_TAG).iso
 
+# bootc-image-builder must run as a privileged container (it needs loop
+# devices + mounts), which rootless podman cannot provide. So `make iso`
+# elevates to rootful podman via sudo, and the local image is copied into
+# rootful storage first with `podman save | sudo podman load`.
+
 # QEMU display backend. Adjust for your environment:
 #   sdl   - SDL window (needs libsdl)
 #   gtk   - GTK window (good on most Linux)
@@ -19,15 +24,20 @@ QEMU_DISPLAY ?= gtk
 build:
 	podman build -t $(IMAGE_NAME):$(IMAGE_TAG) .
 
-## Generate a bootable ISO from the OCI image
+## Generate a bootable ISO from the OCI image (requires sudo for privileged bib)
 iso:
 	@mkdir -p $(ISO_DIR)
-	podman run --rm \
-		-v $(ISO_DIR):/output \
+	# Copy the rootless image into rootful storage so the privileged
+	# bib container can read it with --local.
+	podman save localhost/$(IMAGE_NAME):$(IMAGE_TAG) | sudo podman load
+	sudo podman run --rm --privileged --network host \
+		-v $(abspath $(ISO_DIR)):/output \
 		-v /var/lib/containers/storage:/var/lib/containers/storage \
 		quay.io/centos-bootc/bootc-image-builder:latest \
+		--local \
+		--rootfs ext4 \
 		--type iso \
-		$(IMAGE_NAME):$(IMAGE_TAG)
+		localhost/$(IMAGE_NAME):$(IMAGE_TAG)
 
 ## Boot the ISO in QEMU for testing
 test: iso
