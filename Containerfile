@@ -38,10 +38,20 @@ RUN rm -f /etc/systemd/system/display-manager.service && \
     systemctl enable sddm && \
     systemctl set-default graphical.target
 
-# --- Bake in DOB system configuration ---------------------------------
-# configs/etc/ is copied into /etc/. Later phases add:
-#   - Plymouth/boot splash themes
-#   - GRUB customization
-#   - systemd services (Dream Mode, easter eggs)
-#   - User-level defaults
+# --- Phase 2: Branding ---------------------------------------------------
+# Desktop wallpaper (KDE default for new users via /etc/skel)
+COPY assets/wallpaper/ /usr/share/wallpapers/DOB-Mountains/contents/images/
+
+# GRUB 2 boot menu theme: mountain background, "DOB" title, red accent
+COPY assets/grub/ /usr/share/grub/themes/dob/
+
+# Plymouth boot splash: mountain silhouette + pulsing progress
+COPY assets/plymouth/ /usr/share/plymouth/themes/dob/
+RUN plymouth-set-default-theme dob && \
+    plymouth-set-default-theme --rebuild-initrd 2>/dev/null || true
+
+# Bake in DOB system configuration ---------------------------------
+# configs/etc/ is copied into /etc/. Contains:
+#   - /etc/default/grub    (GRUB_THEME + plymouth.theme cmdline)
+#   - /etc/skel/           (default KDE wallpaper for new users)
 COPY configs/etc/ /etc/

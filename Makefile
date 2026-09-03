@@ -1,30 +1,60 @@
 # ============================================
 # DOB — Build automation
 # ============================================
+# Supports x86_64 and arm64 (aarch64) architectures.
+# On Apple Silicon macOS, podman machine provides the ARM64 build environment.
 
 IMAGE_NAME := dob
 IMAGE_TAG  := latest
 ISO_DIR    := ./output
-ISO_FILE   := $(ISO_DIR)/bootiso/install.iso
+
+# Architecture: auto-detect from host, or override with ARCH=arm64
+UNAME_M    := $(shell uname -m)
+ifeq ($(UNAME_M),aarch64)
+  ARCH     ?= aarch64
+else ifeq ($(UNAME_M),arm64)
+  ARCH     ?= aarch64
+else
+  ARCH     ?= x86_64
+endif
+
+# QEMU binary and display backend — adjust for your environment
+# Linux: qemu-system-<arch> + gtk or sdl
+# macOS: qemu-system-aarch64 (arm64) or qemu-system-x86_64 + gtk/cocoa
+ifeq ($(ARCH),aarch64)
+  QEMU_BIN  ?= qemu-system-aarch64
+  QEMU_ARGS ?= -M virt -cpu cortex-a72
+  # UEFI firmware — Homebrew on macOS, or /usr/share/edk2 on Linux
+  ifeq ($(shell uname -s),Darwin)
+    QEMU_BIOS ?= $(shell brew --prefix qemu 2>/dev/null)/share/qemu/edk2-aarch64-code.fd
+  else
+    QEMU_BIOS ?= /usr/share/edk2/aarch64/QEMU_EFI.fd
+  endif
+else
+  QEMU_BIN  ?= qemu-system-x86_64
+  QEMU_ARGS ?=
+  QEMU_BIOS ?=
+endif
+
+QEMU_DISPLAY ?= gtk
+QEMU_MEM     ?= 4096
+QEMU_SMP     ?= 4
+
+ISO_FILE := $(ISO_DIR)/bootiso/install.iso
 
 # bootc-image-builder must run as a privileged container (it needs loop
 # devices + mounts), which rootless podman cannot provide. So `make iso`
 # elevates to rootful podman via sudo, and the local image is copied into
 # rootful storage first with `podman save | sudo podman load`.
+# On macOS, podman machine handles the rootful/privileged escalation.
 
-# QEMU display backend. Adjust for your environment:
-#   sdl   - SDL window (needs libsdl)
-#   gtk   - GTK window (good on most Linux)
-#   none  - headless (use -nographic instead)
-QEMU_DISPLAY ?= gtk
+.PHONY: build iso test clean help
 
-.PHONY: build iso test clean
-
-## Build the OCI image from the Containerfile
+## Build the OCI image (auto-detects architecture)
 build:
 	podman build -t $(IMAGE_NAME):$(IMAGE_TAG) .
 
-## Generate a bootable ISO from the OCI image (requires sudo for privileged bib)
+## Generate a bootable ISO from the OCI image
 iso:
 	@mkdir -p $(ISO_DIR)
 	# Copy the rootless image into rootful storage so the privileged
@@ -39,15 +69,24 @@ iso:
 		--type iso \
 		localhost/$(IMAGE_NAME):$(IMAGE_TAG)
 
-## Boot the ISO in QEMU for testing
+## Boot the ISO in QEMU for testing (supports arm64 + x86_64)
 test: iso
-	qemu-system-x86_64 \
-		-m 4096 \
-		-smp 4 \
+	$(QEMU_BIN) \
+		-m $(QEMU_MEM) \
+		-smp $(QEMU_SMP) \
+		$(QEMU_ARGS) \
+		$(if $(QEMU_BIOS),-bios $(QEMU_BIOS)) \
 		-cdrom $(ISO_FILE) \
 		-boot d \
-		-enable-kvm \
 		-display $(QEMU_DISPLAY)
+
+## Show detected architecture and QEMU config
+info:
+	@echo "Architecture: $(ARCH)"
+	@echo "QEMU binary:  $(QEMU_BIN)"
+	@echo "QEMU args:    $(QEMU_ARGS)"
+	@echo "QEMU BIOS:    $(QEMU_BIOS)"
+	@echo "ISO path:     $(ISO_FILE)"
 
 ## Remove built artifacts
 clean:

@@ -6,9 +6,9 @@
 # image using bootc-image-builder (bib).
 #
 # Usage:
-#   ./scripts/build-iso.sh [image:tag]
+#   ./scripts/build-iso.sh [image:tag] [--arch aarch64|x86_64]
 #
-# Defaults to dob:latest.
+# Defaults to dob:latest and host architecture.
 # Requires podman and network access.
 
 set -euo pipefail
@@ -20,13 +20,24 @@ IMAGE_NAME="${IMAGE_NAME%%:*}"
 IMAGE_TAG="${IMAGE##*:}"
 LOCAL_REF="localhost/${IMAGE_NAME}:${IMAGE_TAG}"
 
+# Parse optional --arch flag
+ARCH="${2:-}"
+if [ -z "$ARCH" ]; then
+    UNAME_M="$(uname -m)"
+    case "$UNAME_M" in
+        aarch64|arm64) ARCH="aarch64" ;;
+        *)             ARCH="x86_64"  ;;
+    esac
+fi
+
 ISO_DIR="$(cd "$(dirname "$0")/.." && pwd)/output"
 
 BIB_IMAGE="quay.io/centos-bootc/bootc-image-builder:latest"
 
 echo "==> DOB ISO builder"
-echo "    Image:  ${LOCAL_REF}"
-echo "    Output: ${ISO_DIR}/"
+echo "    Image:       ${LOCAL_REF}"
+echo "    Architecture: ${ARCH}"
+echo "    Output:      ${ISO_DIR}/"
 echo "    (runs bootc-image-builder as a privileged rootful container via sudo)"
 
 if ! podman image exists "${LOCAL_REF}"; then
@@ -42,7 +53,7 @@ mkdir -p "${ISO_DIR}"
 echo "==> Copying image into rootful storage..."
 podman save "${LOCAL_REF}" | sudo podman load
 
-echo "==> Running bootc-image-builder..."
+echo "==> Running bootc-image-builder (${ARCH})..."
 sudo podman run --rm --privileged --network host \
     -v "${ISO_DIR}":/output \
     -v /var/lib/containers/storage:/var/lib/containers/storage \
