@@ -9,6 +9,8 @@ a secret "Dream Mode" activated by the Konami code that gradually descends
 into surrealist chaos.
 
 **User:** Gabriel — has Linux experience but is new to distro building.
+**Target hardware:** x86_64 (Linux) + ARM64 (Apple Silicon macOS).
+**Build environment:** WSL2 on Windows (primary), macOS (secondary).
 
 ---
 
@@ -77,14 +79,20 @@ dob1.5-linux/
 ### Build Commands
 
 ```bash
-# Build OCI image
+# Build OCI image (auto-detects architecture)
 podman build -t dob:latest .
+
+# Build ARM64 image on x86_64 host
+podman build --arch arm64 -t dob:latest .
 
 # Generate ISO (requires sudo for rootful privileged bib)
 ./scripts/build-iso.sh        # or: make iso
 
-# Boot test in QEMU
+# Boot test in QEMU (auto-detects arch)
 make test
+
+# Cross-build ISO for ARM64
+ARCH=arm64 make iso
 
 # Regenerate GRUB/Plymouth assets from a new wallpaper
 # (replace assets/wallpaper/DOBMountains.jpg first)
