@@ -53,16 +53,30 @@ brew install qemu
 Podman on macOS runs inside a lightweight Linux VM. Initialize and start it:
 
 ```bash
-# Create the VM (ARM64 on Apple Silicon)
-podman machine init --arch arm64
+# Create the VM (ARM64 on Apple Silicon) — MUST be rootful
+# bootc-image-builder (ISO generation) refuses to run on rootless podman.
+podman machine init --rootful --arch arm64
 
 # Start the VM
 podman machine start
 
-# Verify it's running
+# Verify it's running and rootful
 podman info | grep -i arch
 # Should show: arch: aarch64
+
+podman info | grep -i rootless
+# Should show: rootless: false
 ```
+
+> **Already created the machine without `--rootful`?** Convert it:
+> ```bash
+> podman machine stop
+> podman machine set --rootful
+> podman machine start
+> podman info | grep -i rootless   # expect: rootless: false
+> ```
+> Note: switching to rootful changes the storage location, so any images
+> built earlier as rootless won't be visible — rebuild them (`make build`).
 
 ### Build & test on macOS
 
@@ -71,7 +85,8 @@ podman info | grep -i arch
 podman build -t dob:latest .
 
 # 2. Generate the ARM64 ISO
-# On macOS, podman machine handles the rootful/privileged escalation
+# Runs bootc-image-builder directly — no sudo needed on macOS,
+# but the podman machine MUST be rootful (see init step above).
 ./scripts/build-iso.sh dob:latest
 
 # 3. Test in QEMU

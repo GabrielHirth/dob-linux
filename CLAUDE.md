@@ -138,6 +138,7 @@ ARCH=arm64 make iso
 
 ## Gotchas
 
+- **macOS podman machine must be ROOTFUL:** bib refuses to run on rootless podman (`error: ... must be run in rootful podman`). Podman Machine defaults to rootless. Fix: `podman machine init --rootful` at creation, or `podman machine stop && podman machine set --rootful && podman machine start` on an existing machine. Switching to rootful changes storage — images built earlier as rootless vanish, rebuild them.
 - **WSL2 + rootful podman DNS:** Rootful container DNS (`10.255.255.254`) resolves to IPv6 only. Mirror fetches hang. Fix: `--network host` on the bib container.
 - **KDE group sets plasmalogin:** `@kde-desktop` wires `display-manager.service` to `plasmalogin.service`. Must clear it before enabling SDDM.
 - **rpm-ostree doesn't do groups:** Use `dnf install @kde-desktop` inside the Containerfile (works in build environment where it's a real rootfs).
