@@ -5,7 +5,7 @@
 IMAGE_NAME := dob
 IMAGE_TAG  := latest
 ISO_DIR    := ./output
-ISO_FILE   := $(ISO_DIR)/$(IMAGE_NAME)-$(IMAGE_TAG).iso
+ISO_FILE   := $(ISO_DIR)/bootiso/install.iso
 
 # bootc-image-builder must run as a privileged container (it needs loop
 # devices + mounts), which rootless podman cannot provide. So `make iso`

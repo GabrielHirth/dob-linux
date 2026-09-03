@@ -53,5 +53,4 @@ sudo podman run --rm --privileged --network host \
     "${LOCAL_REF}"
 
 echo "==> Done."
-ISO_FILE="$(ls ${ISO_DIR} | grep -i '\.iso$' | head -n1)"
-echo "    ISO written to: ${ISO_DIR}/${ISO_FILE}"
+echo "    ISO written to: ${ISO_DIR}/bootiso/install.iso"
